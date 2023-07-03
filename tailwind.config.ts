@@ -11,8 +11,15 @@ export default {
         },
         black: {
           rich: "#02040F",
-          slate: "#3B3B3B",
+          slate: { 100: "#3B3B3B", 300: "#2B2B2B" },
         },
+        neutral: {
+          500: "#858584",
+        },
+      },
+
+      fontFamily: {
+        work: ["Work Sans", "sans-serif"],
       },
     },
   },

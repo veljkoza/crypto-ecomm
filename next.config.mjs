@@ -18,6 +18,9 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  images: {
+    domains: ["instagram.ftgd1-1.fna.fbcdn.net"],
+  },
 };
 
 export default config;
