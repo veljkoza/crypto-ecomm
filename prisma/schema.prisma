@@ -16,3 +16,20 @@ model Example {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
+
+enum ProductStatus {
+    ACTIVE
+    UNAVAILABLE
+}
+
+model Product {
+    id          String        @id @default(cuid())
+    title       String
+    image       String
+    description String        @db.Text
+    createdAt   DateTime      @default(now())
+    updatedAt   DateTime      @updatedAt
+    status      ProductStatus
+    attributes  Json
+    price       Json
+}

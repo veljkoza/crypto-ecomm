@@ -7,6 +7,10 @@ import { api } from "~/utils/api";
 
 export default function Home() {
   const hello = api.example.hello.useQuery({ text: "from tRPC" });
+  const { data, isLoading } = api.product.getAll.useQuery();
+  console.log({ data });
+  if (!data) return <h1>No data</h1>;
+  if (isLoading) return <h1>Is loading...</h1>;
 
   return (
     <>
@@ -18,21 +22,25 @@ export default function Home() {
       <main className="flex min-h-screen flex-col  justify-center p-4 px-7 pt-24">
         <Header />
         <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 md:grid-cols-3">
-          <ProductCard
-            image={<ProductCard.Image />}
-            body={
-              <>
-                <ProductCard.Title />
-                <ProductCard.Description />
-              </>
-            }
-            actions={
-              <>
-                <ProductCard.Price />
-                <Button>Buy now</Button>
-              </>
-            }
-          />
+          {data.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              image={<ProductCard.Image />}
+              body={
+                <>
+                  <ProductCard.Title />
+                  <ProductCard.Description />
+                </>
+              }
+              actions={
+                <>
+                  <ProductCard.Price />
+                  <Button>Buy now</Button>
+                </>
+              }
+            />
+          ))}
         </div>
       </main>
     </>
