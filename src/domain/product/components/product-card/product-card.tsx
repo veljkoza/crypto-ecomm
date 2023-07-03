@@ -33,6 +33,8 @@ const ProductPrice = () => {
   );
 };
 
+console.log("test");
+
 const ProductTitle = () => {
   const { title } = useProduct();
   return (
