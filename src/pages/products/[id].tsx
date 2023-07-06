@@ -3,12 +3,13 @@ import Image from "next/image";
 import { Container } from "~/_shared/components/Container";
 
 import { api } from "~/utils/api";
-import { MdHeight } from "react-icons/md";
+import { MdHeight, MdArrowBack } from "react-icons/md";
 import { RxWidth } from "react-icons/rx";
 import { Product } from "@prisma/client";
 import { formatPrice } from "~/_shared/utils";
 import { TProductPrice } from "~/server/api/products/products.types";
 import { Button } from "~/_shared/components/Button";
+import Link from "next/link";
 
 type TProductAttributesKey = "Height" | "Width";
 const productAttributesToMap = (attributes: Product["attributes"]) => {
@@ -44,6 +45,13 @@ const ProductDetails: NextPage<{ id: string }> = ({ id }) => {
   const btnClasses = "overflow-hidden rounded-lg flex-shrink-0";
   return (
     <main className="min-h-screen bg-black-slate-300">
+      <header className="absolute left-0 right-0 top-0">
+        <Container>
+          <Link href="/" className="text-4xl text-white">
+            <MdArrowBack />
+          </Link>
+        </Container>
+      </header>
       <Image
         alt={`${title} image`}
         src={image}

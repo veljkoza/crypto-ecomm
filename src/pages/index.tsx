@@ -8,12 +8,10 @@ import { Container } from "~/_shared/components/Container";
 import { useRouter } from "next/router";
 
 export default function Home() {
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
   const { data, isLoading } = api.product.getAll.useQuery();
   const router = useRouter();
-  console.log({ data });
-  if (!data) return <h1>No data</h1>;
   if (isLoading) return <h1>Is loading...</h1>;
+  if (!data) return <h1>No data</h1>;
 
   return (
     <>
