@@ -10,29 +10,15 @@ import { formatPrice } from "~/_shared/utils";
 import { TProductPrice } from "~/server/api/products/products.types";
 import { Button } from "~/_shared/components/Button";
 import Link from "next/link";
-
-type TProductAttributesKey = "Height" | "Width";
-const productAttributesToMap = (attributes: Product["attributes"]) => {
-  const parsed = attributes as { name: TProductAttributesKey; value: any }[];
-  const obj: Record<TProductAttributesKey, any> = {
-    Height: undefined,
-    Width: undefined,
-  };
-  parsed.map((attr) => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    obj[attr.name] = attr.value;
-  });
-  return obj;
-};
+import { useMemo } from "react";
+import { productAttributesToMap } from "~/domain/products/utils/productAttributesToMap";
 
 const ProductDetails: NextPage<{ id: string }> = ({ id }) => {
-  console.log({ id });
   const {
     data: product,
     isLoading,
     error,
   } = api.product.getById.useQuery({ id });
-  console.log({ product });
   if (isLoading) return <h1>Loading...</h1>;
   if (error) return <h1>{error.message}</h1>;
   if (!product) return <div> No data.</div>;

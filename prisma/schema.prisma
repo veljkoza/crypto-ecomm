@@ -18,6 +18,7 @@ model Example {
 }
 
 enum ProductStatus {
+    PUBLISHED
     ACTIVE
     UNAVAILABLE
 }
@@ -25,11 +26,11 @@ enum ProductStatus {
 model Product {
     id          String        @id @default(cuid())
     title       String
-    image       String
+    image       String      
     description String        @db.Text
     createdAt   DateTime      @default(now())
     updatedAt   DateTime      @updatedAt
     status      ProductStatus
     attributes  Json
-    price       Json
+    price       Json //{value: 0.005, currency: 'ETH'}
 }
