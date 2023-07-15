@@ -2,7 +2,7 @@ import { NextPage } from "next";
 import { Router, useRouter } from "next/router";
 import { Button } from "~/_shared/components/Button";
 import { Container } from "~/_shared/components/Container";
-import { ProductCard } from "~/domain/products/components/product-card/product-card";
+import { ProductCard } from "~/_domain/products/components/product-card/product-card";
 import { Routes } from "~/routes";
 import { api } from "~/utils/api";
 

@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
-import { ProductCard } from "~/domain/products/components/product-card/product-card";
+import { ProductCard } from "~/_domain/products/components/product-card/product-card";
 import { Button } from "~/_shared/components/Button";
 import { Header } from "~/_shared/components/Header";
 import { api } from "~/utils/api";

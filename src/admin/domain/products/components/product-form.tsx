@@ -41,9 +41,8 @@ export const ProductForm = ({
 
   return (
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    <form onSubmit={handleSubmit(submit)} className="h-full">
-      <Container className="flex h-full flex-col">
-        {/* <Image
+    <form onSubmit={handleSubmit(submit)} className="flex h-full flex-col">
+      {/* <Image
           alt={`product `}
           src={imageSrc}
           height={224}
@@ -51,59 +50,58 @@ export const ProductForm = ({
           className="h-44 w-44 rounded-lg object-cover"
         /> */}
 
+      <div className="">
+        <label htmlFor="title">Name:</label>
+        <input
+          required
+          placeholder="Title"
+          className="mt-2 w-full rounded-xl bg-white bg-opacity-60 p-4"
+          {...register("title")}
+        />
+      </div>
+      <div className="mt-5">
+        <label htmlFor="description">Description:</label>
+        <textarea
+          required
+          placeholder="Description"
+          className="mt-2 w-full rounded-xl bg-white bg-opacity-60 p-4"
+          {...register("description")}
+        />
+      </div>
+      <div className="flex gap-6">
         <div className="mt-5">
-          <label htmlFor="title">Name:</label>
+          <label htmlFor="height">Height:</label>
           <input
             required
-            placeholder="Title"
+            placeholder="Height"
             className="mt-2 w-full rounded-xl bg-white bg-opacity-60 p-4"
-            {...register("title")}
+            {...register("height")}
           />
         </div>
         <div className="mt-5">
-          <label htmlFor="description">Description:</label>
-          <textarea
-            required
-            placeholder="Description"
-            className="mt-2 w-full rounded-xl bg-white bg-opacity-60 p-4"
-            {...register("description")}
-          />
-        </div>
-        <div className="flex gap-6">
-          <div className="mt-5">
-            <label htmlFor="height">Height:</label>
-            <input
-              required
-              placeholder="Height"
-              className="mt-2 w-full rounded-xl bg-white bg-opacity-60 p-4"
-              {...register("height")}
-            />
-          </div>
-          <div className="mt-5">
-            <label htmlFor="width">Width:</label>
-            <input
-              required
-              placeholder="Width"
-              className="mt-2 w-full rounded-xl bg-white bg-opacity-60 p-4"
-              {...register("width")}
-            />
-          </div>
-        </div>
-        <div className="mt-5">
-          <label htmlFor="price">Price:</label>
+          <label htmlFor="width">Width:</label>
           <input
             required
-            placeholder="Price"
+            placeholder="Width"
             className="mt-2 w-full rounded-xl bg-white bg-opacity-60 p-4"
-            {...register("price")}
+            {...register("width")}
           />
         </div>
-        <div className="mt-10 flex">
-          <Button className="ml-auto w-full" type="submit">
-            Submit
-          </Button>
-        </div>
-      </Container>
+      </div>
+      <div className="mt-5">
+        <label htmlFor="price">Price:</label>
+        <input
+          required
+          placeholder="Price"
+          className="mt-2 w-full rounded-xl bg-white bg-opacity-60 p-4"
+          {...register("price")}
+        />
+      </div>
+      <div className="mt-10 flex">
+        <Button className="ml-auto w-full" type="submit">
+          Submit
+        </Button>
+      </div>
     </form>
   );
 };

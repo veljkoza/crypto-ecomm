@@ -19,7 +19,11 @@ const config = {
     defaultLocale: "en",
   },
   images: {
-    domains: ["instagram.ftgd1-1.fna.fbcdn.net", "i.ibb.co"],
+    domains: [
+      "instagram.ftgd1-1.fna.fbcdn.net",
+      "i.ibb.co",
+      "res.cloudinary.com",
+    ],
   },
 };
 

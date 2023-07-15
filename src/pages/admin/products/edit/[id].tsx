@@ -1,16 +1,17 @@
 import { GetStaticProps, NextPage } from "next";
 import { FC, ReactNode, useState } from "react";
-import { Container } from "~/_shared/components/Container";
 import FileInput from "~/_shared/components/FileInput";
 import {
   ProductForm,
   TProductFormValues,
 } from "~/admin/domain/products/components/product-form";
 import { mapFormValuesToDto } from "~/admin/domain/products/utils/mapFormValuesToDto";
-import { productAttributesToMap } from "~/domain/products/utils/productAttributesToMap";
+import { productAttributesToMap } from "~/_domain/products/utils/productAttributesToMap";
 import { TProductPrice } from "~/server/api/products/products.types";
 import { api } from "~/utils/api";
-
+import Image from "next/image";
+import { Container } from "~/_shared/components/Container";
+import { ProductImagesForm } from "~/admin/domain/products/components/product-images-form";
 const AdminProductsEditPage: FC<{ id: string }> = ({ id }) => {
   const {
     data: product,
@@ -20,10 +21,6 @@ const AdminProductsEditPage: FC<{ id: string }> = ({ id }) => {
   const { mutate, isLoading: isUpdateLoading } =
     api.product.update.useMutation();
   console.log({ product });
-
-  const [imageBase64, setImageBase64] = useState<ArrayBuffer | string | null>(
-    ""
-  );
 
   const { product: productApiCache } = api.useContext();
 
@@ -53,8 +50,9 @@ const AdminProductsEditPage: FC<{ id: string }> = ({ id }) => {
   };
 
   return (
-    <main className="flex h-full min-h-screen flex-col">
+    <Container>
       <Tabs
+        className="pt-10"
         tabs={{
           General: (
             <ProductForm
@@ -63,31 +61,20 @@ const AdminProductsEditPage: FC<{ id: string }> = ({ id }) => {
               onSubmit={handleSubmit}
             />
           ),
-          Images: (
-            <div>
-              <h1 className="text-white">{imageBase64}</h1>
-              <Image
-                alt={`product `}
-                src={imageSrc}
-                height={224}
-                width={224}
-                className="h-44 w-44 rounded-lg object-cover"
-              />
-              <FileInput/>
-            </div>
-          ),
+          Images: <ProductImagesForm product={product} />,
         }}
       />
-    </main>
+    </Container>
   );
 };
 
 interface ITabs<T> {
   tabs: Record<keyof T, ReactNode>;
   onChange?: (tab: keyof T) => void;
+  className?: string;
 }
 
-const Tabs = <T,>({ tabs, onChange }: ITabs<T>) => {
+const Tabs = <T,>({ tabs, className, onChange }: ITabs<T>) => {
   const keys = Object.keys(tabs);
 
   const [activeTab, setActiveTab] = useState(keys[0]);
@@ -113,7 +100,7 @@ const Tabs = <T,>({ tabs, onChange }: ITabs<T>) => {
           </button>
         ))}
       </nav>
-      {tabs[activeTab as keyof T]}
+      <div className={className}>{tabs[activeTab as keyof T]}</div>
     </>
   );
 };

@@ -4,7 +4,7 @@ import { Product } from "@prisma/client";
 import { productDto } from "./products.types";
 import { productsRepository } from "./repository";
 import { TRPCError } from "@trpc/server";
-import { ImgBBService } from "../services/imgbb.service";
+import { ImageUploadService } from "../services/image-upload.service";
 
 export const productZodSchema = {
   title: z.string(),
@@ -33,6 +33,18 @@ const createProduct = publicProcedure
 
 const updateProductZodSchema = z.object({
   ...productZodSchema,
+  title: z.string().optional(),
+  description: z.string().optional(),
+  price: z
+    .object({
+      value: z.number().optional(),
+      currency: z.string().optional(),
+    })
+    .optional(),
+  attributes: z
+    .array(z.object({ name: z.string().optional(), value: z.any().optional() }))
+    .optional(),
+  image: z.string().optional(),
   id: z.string(),
 });
 export type TUpdateProductDTO = z.infer<typeof updateProductZodSchema>;
@@ -60,9 +72,26 @@ export const productsRouter = createTRPCRouter({
   create: createProduct,
   update: updateProduct,
   setProductImage: publicProcedure
-    .input(z.object({ base64: z.string() }))
+    .input(z.object({ base64: z.string(), id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const res = await ImgBBService.upload({ base64: input.base64 });
-      return res;
+      try {
+        const res = await ImageUploadService.upload({ base64: input.base64 });
+        if (!res)
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Something went wrong while uploading image",
+          });
+        const updatedProduct = await productsRepository.updateProduct({
+          image: res.url,
+          id: input.id,
+        });
+        return updatedProduct;
+      } catch (error) {
+        console.log("upload error", error);
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Something went wrong while uploading image",
+        });
+      }
     }),
 });

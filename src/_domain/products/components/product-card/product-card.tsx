@@ -3,6 +3,7 @@ import type { TProductPrice } from "~/server/api/products/products.types";
 import type { RouterOutputs } from "~/utils/api";
 import { ProductImage } from "./product-card-image";
 import { formatPrice } from "~/_shared/utils";
+import { ProductDTO } from "../../types";
 
 const ProductPrice = () => {
   const { price: _price } = useProduct();
@@ -50,7 +51,7 @@ type TCompoundProps = {
   Title: typeof ProductTitle;
 };
 
-type TProduct = RouterOutputs["product"]["getAll"][0];
+type TProduct = ProductDTO;
 
 const ProductContext = createContext({} as TProduct);
 export const useProduct = () => {

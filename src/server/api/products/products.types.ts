@@ -1,4 +1,5 @@
 import { Product } from "@prisma/client";
+import { RouterOutputs } from "~/utils/api";
 
 export type TProductPrice = { currency: string; value: number };
 export const productDto: Record<keyof Product, boolean> = {

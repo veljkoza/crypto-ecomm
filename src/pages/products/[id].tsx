@@ -11,7 +11,7 @@ import { TProductPrice } from "~/server/api/products/products.types";
 import { Button } from "~/_shared/components/Button";
 import Link from "next/link";
 import { useMemo } from "react";
-import { productAttributesToMap } from "~/domain/products/utils/productAttributesToMap";
+import { productAttributesToMap } from "~/_domain/products/utils/productAttributesToMap";
 
 const ProductDetails: NextPage<{ id: string }> = ({ id }) => {
   const {
