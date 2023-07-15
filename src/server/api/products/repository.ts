@@ -20,12 +20,17 @@ export const productsRepository = {
   },
   updateProduct: async (input: TUpdateProductDTO) => {
     const product = await productsRepository.getById(input.id);
+    if (!product.attributes) return;
+    if (!product.price) return;
+
     const updatedProduct = await prisma.product.update({
       where: {
         id: input.id,
       },
       data: {
         ...product,
+        attributes: product.attributes,
+        price: product.price,
         ...input,
       },
     });
