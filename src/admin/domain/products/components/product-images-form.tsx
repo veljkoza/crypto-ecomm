@@ -28,6 +28,7 @@ export const ProductImagesForm: FC<IProductImagesForm> = ({ product }) => {
       },
       {
         onSuccess: (res) => {
+          if (!res) return;
           productApiCache.getById.setData({ id: res.id }, res);
         },
       }
