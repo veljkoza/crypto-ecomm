@@ -23,14 +23,34 @@ enum ProductStatus {
     UNAVAILABLE
 }
 
+model Asset {
+    id                  String                @id @default(cuid())
+    url                 String
+    extension           String
+    name                String
+    ProductGalleryImage ProductGalleryImage[]
+    Product             Product[]
+}
+
+model ProductGalleryImage {
+    id        String   @id @default(cuid())
+    asset     Asset    @relation(fields: [assetId], references: [id])
+    assetId   String
+    order     Int
+    Product   Product? @relation(fields: [productId], references: [id])
+    productId String?
+}
+
 model Product {
-    id          String        @id @default(cuid())
+    id          String                @id @default(cuid())
     title       String
-    image       String      
-    description String        @db.Text
-    createdAt   DateTime      @default(now())
-    updatedAt   DateTime      @updatedAt
+    image       Asset?                @relation(fields: [assetId], references: [id])
+    description String                @db.Text
+    createdAt   DateTime              @default(now())
+    updatedAt   DateTime              @updatedAt
+    gallery     ProductGalleryImage[]
     status      ProductStatus
     attributes  Json
     price       Json //{value: 0.005, currency: 'ETH'}
+    assetId     String?
 }

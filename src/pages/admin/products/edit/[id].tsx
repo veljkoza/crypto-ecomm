@@ -35,7 +35,7 @@ const AdminProductsEditPage: FC<{ id: string }> = ({ id }) => {
     width: attributesObj.Width as number,
     price: (product.price as TProductPrice).value,
     title: product.title,
-    image: product.image,
+    image: product.image?.url,
   });
 
   const handleSubmit = (values: TProductFormValues) => {

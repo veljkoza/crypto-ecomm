@@ -12,6 +12,8 @@ import { Button } from "~/_shared/components/Button";
 import Link from "next/link";
 import { useMemo } from "react";
 import { productAttributesToMap } from "~/_domain/products/utils/productAttributesToMap";
+import { ProductGallery } from "~/admin/domain/products/components/product-gallery";
+import { mapGalleryToImages } from "~/_domain/products/utils/mapGalleryToImages";
 
 const ProductDetails: NextPage<{ id: string }> = ({ id }) => {
   const {
@@ -23,12 +25,37 @@ const ProductDetails: NextPage<{ id: string }> = ({ id }) => {
   if (error) return <h1>{error.message}</h1>;
   if (!product) return <div> No data.</div>;
 
-  const { title, description, attributes, image, price: _price } = product;
+  const {
+    title,
+    description,
+    attributes,
+    image: _image,
+    price: _price,
+    gallery,
+  } = product;
+  const image = _image?.url;
   const price = _price as TProductPrice;
   const attributesObj = productAttributesToMap(attributes);
 
   const imgClasses = "h-20 w-20 min-w-[80px] flex-shrink-0 object-cover ";
   const btnClasses = "overflow-hidden rounded-lg flex-shrink-0";
+
+  const getImages = () => {
+    if (!image) return;
+    return (
+      <>
+        {" "}
+        <Image
+          alt={`${title} image`}
+          src={image}
+          height={384}
+          width={500}
+          className="mb-5 h-[420px] w-full object-cover"
+        />
+        <ProductGallery images={mapGalleryToImages(product)} />
+      </>
+    );
+  };
   return (
     <main className="min-h-screen bg-black-slate-300">
       <header className="absolute left-0 right-0 top-0">
@@ -38,90 +65,8 @@ const ProductDetails: NextPage<{ id: string }> = ({ id }) => {
           </Link>
         </Container>
       </header>
-      <Image
-        alt={`${title} image`}
-        src={image}
-        height={384}
-        width={500}
-        className="h-[420px] w-full object-cover"
-      />
-      <div className=" mt-3 flex gap-4 overflow-x-auto">
-        <div className="w-4"></div>
-        <button className={btnClasses}>
-          <Image
-            alt={`${title} image`}
-            src={image}
-            height={64}
-            width={64}
-            className={imgClasses}
-          />
-        </button>
-        <button className={btnClasses}>
-          <Image
-            alt={`${title} image`}
-            src={image}
-            height={64}
-            width={64}
-            className={imgClasses}
-          />
-        </button>
-        <button className={btnClasses}>
-          <Image
-            alt={`${title} image`}
-            src={image}
-            height={64}
-            width={64}
-            className={imgClasses}
-          />
-        </button>
-        <button className={btnClasses}>
-          <Image
-            alt={`${title} image`}
-            src={image}
-            height={64}
-            width={64}
-            className={imgClasses}
-          />
-        </button>
-        <button className={btnClasses}>
-          <Image
-            alt={`${title} image`}
-            src={image}
-            height={64}
-            width={64}
-            className={imgClasses}
-          />
-        </button>
-        <button className={btnClasses}>
-          <Image
-            alt={`${title} image`}
-            src={image}
-            height={64}
-            width={64}
-            className={imgClasses}
-          />
-        </button>
-        <button className={btnClasses}>
-          <Image
-            alt={`${title} image`}
-            src={image}
-            height={64}
-            width={64}
-            className={imgClasses}
-          />
-        </button>
-        <button className={btnClasses}>
-          <Image
-            alt={`${title} image`}
-            src={image}
-            height={64}
-            width={64}
-            className={imgClasses}
-          />
-        </button>
-        <div className="w-4"></div>
-      </div>
-      <Container className="flex h-full flex-1 flex-col">
+      {getImages()}
+      <Container className="mt-5 flex h-full flex-1 flex-col">
         <div className="h-full">
           <div className="flex items-end justify-between">
             <h1 className="font-work text-3xl font-semibold capitalize text-white">

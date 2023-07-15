@@ -1,6 +1,6 @@
 import { ZodTypeAny, z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import { Product } from "@prisma/client";
+import { Prisma, Product } from "@prisma/client";
 import { productDto } from "./products.types";
 import { productsRepository } from "./repository";
 import { TRPCError } from "@trpc/server";
@@ -25,7 +25,6 @@ const createProduct = publicProcedure
         price: input.price,
         status: "PUBLISHED",
         attributes: input.attributes,
-        image: "",
       },
     });
     return newProduct;
@@ -44,10 +43,16 @@ const updateProductZodSchema = z.object({
   attributes: z
     .array(z.object({ name: z.string().optional(), value: z.any().optional() }))
     .optional(),
-  image: z.string().optional(),
   id: z.string(),
 });
-export type TUpdateProductDTO = z.infer<typeof updateProductZodSchema>;
+// export type TUpdateProductDTO = z.infer<typeof updateProductZodSchema>;
+export type TUpdateProductDTO = Omit<
+  Prisma.ProductUpdateArgs["data"],
+  "id" | "createdAt" | "image" | "gallery"
+> & {
+  id: string;
+  assetId?: string; // add imageId in DTO to connect the image
+};
 
 const updateProduct = publicProcedure
   .input(updateProductZodSchema)
@@ -81,10 +86,19 @@ export const productsRouter = createTRPCRouter({
             code: "BAD_REQUEST",
             message: "Something went wrong while uploading image",
           });
+        const product = await productsRepository.getById(input.id);
+        const asset = await ctx.prisma.asset.create({
+          data: {
+            extension: res.format,
+            name: `${product.title}-${product.id}-${res.public_id}`,
+            url: res.url,
+          },
+        });
         const updatedProduct = await productsRepository.updateProduct({
-          image: res.url,
+          assetId: asset.id,
           id: input.id,
         });
+
         return updatedProduct;
       } catch (error) {
         console.log("upload error", error);
@@ -93,5 +107,62 @@ export const productsRouter = createTRPCRouter({
           message: "Something went wrong while uploading image",
         });
       }
+    }),
+  addImageToProductGallery: publicProcedure
+    .input(z.object({ base64: z.string(), id: z.string(), order: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      /**
+       * 1. upload file to cdn
+       * 2. create product galler image
+       * 3. connect somehow asset id to the image gallery
+       */
+      const res = await ImageUploadService.upload({ base64: input.base64 });
+      if (!res)
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Something went wrong while uploading image",
+        });
+
+      const product = await productsRepository.getById(input.id);
+      const asset = await ctx.prisma.asset.create({
+        data: {
+          extension: res.format,
+          name: `${product.title}-${product.id}-${res.public_id}`,
+          url: res.url,
+        },
+      });
+      const galleryImage = await ctx.prisma.productGalleryImage.create({
+        data: {
+          order: input.order,
+          asset: {
+            connect: {
+              id: asset.id,
+            },
+          },
+        },
+        select: {
+          asset: true,
+          order: true,
+          id: true,
+        },
+      });
+
+      const updatedProduct = await ctx.prisma.product.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          gallery: {
+            connect: {
+              id: galleryImage.id,
+            },
+          },
+        },
+        select: {
+          ...productDto,
+        },
+      });
+
+      return updatedProduct;
     }),
 });

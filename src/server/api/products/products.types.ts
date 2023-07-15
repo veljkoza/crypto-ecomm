@@ -2,14 +2,20 @@ import { Product } from "@prisma/client";
 import { RouterOutputs } from "~/utils/api";
 
 export type TProductPrice = { currency: string; value: number };
-export const productDto: Record<keyof Product, boolean> = {
-  id: true,
-  title: true,
-  description: true,
+export const productDto = {
   attributes: true,
-  image: true,
-  price: true,
+  description: true,
   status: true,
   createdAt: true,
-  updatedAt: true,
+  id: true,
+  image: true,
+  price: true,
+  title: true,
+  gallery: {
+    select: {
+      asset: true,
+      id: true,
+      order: true,
+    },
+  },
 };

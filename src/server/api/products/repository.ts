@@ -2,6 +2,7 @@ import { prisma } from "~/server/db";
 import { productDto } from "./products.types";
 import { TRPCError } from "@trpc/server";
 import { TUpdateProductDTO } from "./router";
+import { Prisma } from "@prisma/client";
 
 export const productsRepository = {
   getById: async (id: string) => {
@@ -22,17 +23,34 @@ export const productsRepository = {
     const product = await productsRepository.getById(input.id);
     if (!product.attributes) return;
     if (!product.price) return;
+    const { id, assetId, ...otherFields } = input;
 
+    const updateData: Prisma.ProductUpdateArgs["data"] = {
+      ...otherFields,
+    };
+
+    // update image only if imageId is provided
+    if (assetId !== undefined) {
+      updateData.image = {
+        connect: { id: assetId },
+      };
+    }
+    // const updatedProduct = await prisma.product.update({
+    //   where: {
+    //     id: input.id,
+    //   },
+    //   data: {
+    //     ...product,
+    //     attributes: product.attributes,
+    //     price: product.price,
+    //     ...input,
+    //   },
+    //   select: productDto,
+    // });
     const updatedProduct = await prisma.product.update({
-      where: {
-        id: input.id,
-      },
-      data: {
-        ...product,
-        attributes: product.attributes,
-        price: product.price,
-        ...input,
-      },
+      where: { id },
+      data: updateData,
+      select: productDto,
     });
     return updatedProduct;
   },

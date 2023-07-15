@@ -20,10 +20,10 @@ const AdminProductsAddPage: FC<NextPage> = () => {
       },
     });
   return (
-    <main className="flex h-full min-h-screen flex-col">
+    <Container className="flex h-full min-h-screen flex-col">
       <h1>Add Product</h1>
       <ProductForm mode="add" onSubmit={handleSubmit} />
-    </main>
+    </Container>
   );
 };
 
