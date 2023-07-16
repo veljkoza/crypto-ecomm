@@ -26,6 +26,7 @@ enum ProductStatus {
 model Asset {
     id                  String                @id @default(cuid())
     url                 String
+    publicId            String
     extension           String
     name                String
     ProductGalleryImage ProductGalleryImage[]

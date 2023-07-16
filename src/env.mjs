@@ -10,6 +10,9 @@ export const env = createEnv({
     DATABASE_URL: z.string().url(),
     IMG_BB_API_KEY: z.string(),
     NODE_ENV: z.enum(["development", "test", "production"]),
+    CLOUDINARY_CLOUD: z.string(),
+    CLOUDINARY_API_KEY: z.string(),
+    CLOUDINARY_API_SECRET: z.string(),
   },
 
   /**
@@ -29,6 +32,9 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     IMG_BB_API_KEY: process.env.IMG_BB_API_KEY,
+    CLOUDINARY_CLOUD: process.env.CLOUDINARY_CLOUD,
+    CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+    CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

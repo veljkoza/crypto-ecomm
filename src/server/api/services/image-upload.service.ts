@@ -1,6 +1,7 @@
 import axios from "axios";
 import { env } from "~/env.mjs";
 import cloudinary from "cloudinary";
+import { TRPCError } from "@trpc/server";
 type ImageFile = {
   asset_id: string;
   public_id: string;
@@ -23,14 +24,14 @@ type ImageFile = {
   api_key: string;
 };
 
+cloudinary.v2.config({
+  cloud_name: env.CLOUDINARY_CLOUD,
+  api_key: env.CLOUDINARY_API_KEY,
+  api_secret: env.CLOUDINARY_API_SECRET,
+});
+
 export const ImageUploadService = {
   upload: async ({ base64 }: { base64?: string }) => {
-    cloudinary.v2.config({
-      cloud_name: "oblakscdn",
-      api_key: "362917798344984",
-      api_secret: "hmaxqmHTOwbaBPvuO6Hgffntaj0",
-    });
-
     console.log({ base64 });
     if (!base64) return;
     try {
@@ -39,6 +40,17 @@ export const ImageUploadService = {
       return data;
     } catch (error) {
       console.log({ error });
+    }
+  },
+  destroy: async ({ publicId }: { publicId: string }) => {
+    try {
+      await cloudinary.v2.uploader.destroy(publicId);
+    } catch (error) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Error while deleting image using image upload service",
+        cause: error,
+      });
     }
   },
 };

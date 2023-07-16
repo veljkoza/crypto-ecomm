@@ -92,6 +92,7 @@ export const productsRouter = createTRPCRouter({
             extension: res.format,
             name: `${product.title}-${product.id}-${res.public_id}`,
             url: res.url,
+            publicId: res.public_id,
           },
         });
         const updatedProduct = await productsRepository.updateProduct({
@@ -128,6 +129,7 @@ export const productsRouter = createTRPCRouter({
           extension: res.format,
           name: `${input.id}-${res.public_id}`,
           url: res.url,
+          publicId: res.public_id,
         },
         select: {
           id: true,
@@ -180,9 +182,25 @@ export const productsRouter = createTRPCRouter({
         },
         select: {
           id: true,
-          productId: true
+          productId: true,
+          asset: {
+            select: {
+              publicId: true,
+            },
+          },
         },
       });
+
+      try {
+        await ImageUploadService.destroy({
+          publicId: deletedImage.asset.publicId,
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Error while trying to delete image from remote cdn. ${deletedImage.asset.publicId}`,
+        });
+      }
 
       return deletedImage;
     }),
