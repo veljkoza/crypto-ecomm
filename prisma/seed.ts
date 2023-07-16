@@ -27,7 +27,9 @@ async function main() {
     await prisma.product.create({
       data: {
         title: name,
-        image: randominator.img(),
+        image: {
+          
+        },
         description: ` Lorem ipsum dolor sit amet consectetur, adipisicing elit. Commodi laudantium
               repellendus aperiam obcaecati, reprehenderit ipsam fugiat similique iste
               quam distinctio dolorem mollitia dolores inventore corrupti aspernatur.
