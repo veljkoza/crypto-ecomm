@@ -1,4 +1,11 @@
-import React, { ChangeEvent, FC, useState } from "react";
+import React, {
+  ChangeEvent,
+  FC,
+  InputHTMLAttributes,
+  ReactNode,
+  useRef,
+  useState,
+} from "react";
 
 type FileInputProps = {
   onFileChange?: ({
@@ -8,10 +15,17 @@ type FileInputProps = {
     file: File | null;
     base64: string;
   }) => void;
+  className?: string;
   accept?: string;
+  render: ({ onClick }: { onClick: () => void }) => ReactNode;
 };
 
-const FileInput: FC<FileInputProps> = ({ onFileChange, accept }) => {
+const FileInput: FC<FileInputProps> = ({
+  onFileChange,
+  accept,
+  className,
+  render,
+}) => {
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;
 
@@ -29,8 +43,24 @@ const FileInput: FC<FileInputProps> = ({ onFileChange, accept }) => {
       reader.readAsDataURL(file);
     }
   };
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  return <input type="file" accept={accept} onChange={handleChange} />;
+  const onClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  return (
+    <>
+      {render({ onClick })}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={accept}
+        onChange={handleChange}
+        className="hidden"
+      />
+    </>
+  );
 };
 
 export default FileInput;

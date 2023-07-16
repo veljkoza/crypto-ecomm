@@ -123,12 +123,14 @@ export const productsRouter = createTRPCRouter({
           message: "Something went wrong while uploading image",
         });
 
-      const product = await productsRepository.getById(input.id);
       const asset = await ctx.prisma.asset.create({
         data: {
           extension: res.format,
-          name: `${product.title}-${product.id}-${res.public_id}`,
+          name: `${input.id}-${res.public_id}`,
           url: res.url,
+        },
+        select: {
+          id: true,
         },
       });
       const galleryImage = await ctx.prisma.productGalleryImage.create({
@@ -164,5 +166,24 @@ export const productsRouter = createTRPCRouter({
       });
 
       return updatedProduct;
+    }),
+  deleteImageFromProductGallery: publicProcedure
+    .input(
+      z.object({
+        imageId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const deletedImage = await ctx.prisma.productGalleryImage.delete({
+        where: {
+          id: input.imageId,
+        },
+        select: {
+          id: true,
+          productId: true
+        },
+      });
+
+      return deletedImage;
     }),
 });
