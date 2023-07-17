@@ -37,25 +37,6 @@ const ProductDetails: NextPage<{ id: string }> = ({ id }) => {
   const price = _price as TProductPrice;
   const attributesObj = productAttributesToMap(attributes);
 
-  const imgClasses = "h-20 w-20 min-w-[80px] flex-shrink-0 object-cover ";
-  const btnClasses = "overflow-hidden rounded-lg flex-shrink-0";
-
-  const getImages = () => {
-    if (!image) return;
-    return (
-      <>
-        {" "}
-        <Image
-          alt={`${title} image`}
-          src={image}
-          height={384}
-          width={500}
-          className="mb-5 h-[420px] w-full object-cover"
-        />
-        <ProductGallery images={mapGalleryToImages(product)} />
-      </>
-    );
-  };
   return (
     <main className="min-h-screen bg-black-slate-300">
       <header className="absolute left-0 right-0 top-0">
@@ -65,7 +46,16 @@ const ProductDetails: NextPage<{ id: string }> = ({ id }) => {
           </Link>
         </Container>
       </header>
-      {getImages()}
+      {image && (
+        <Image
+          alt={`${title} image`}
+          src={image}
+          height={384}
+          width={500}
+          className="mb-5 h-[420px] w-full object-cover"
+        />
+      )}
+      <ProductGallery images={mapGalleryToImages(product)} />
       <Container className="mt-5 flex h-full flex-1 flex-col">
         <div className="h-full">
           <div className="flex items-end justify-between">
@@ -116,4 +106,9 @@ export const getStaticProps: GetStaticProps<{ id: string }> = (context) => {
 export const getStaticPaths = () => {
   return { paths: [], fallback: "blocking" };
 };
+
+const ProductDetailsPagePlaceholder = () => {
+  return <div></div>;
+};
+
 export default ProductDetails;
