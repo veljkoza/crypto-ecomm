@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Link from "next/link";
 import { ProductCard } from "~/_domain/products/components/product-card/product-card";
 import { Button } from "~/_shared/components/Button";
 import { Header } from "~/_shared/components/Header";
@@ -7,9 +6,48 @@ import { api } from "~/utils/api";
 import { Container } from "~/_shared/components/Container";
 import { useRouter } from "next/router";
 
+import { BuyNowModal } from "~/_domain/products/components/buy-now-modal/buy-now-modal";
+import { PaymentMethod } from "@prisma/client";
+import type { TProductPrice } from "~/server/api/products/products.types";
 export default function Home() {
   const { data, isLoading } = api.product.getAll.useQuery();
   const router = useRouter();
+
+  const createOrderMutation = api.order.create.useMutation();
+
+  const onBuyHandler: Parameters<typeof BuyNowModal>["0"]["onBuy"] = ({
+    method,
+    product,
+    closeModal,
+  }) => {
+    const payload = {
+      address: "Kralja Nikole 982",
+      fullName: "Veljkoza",
+      phoneNumber: "+392391",
+      products: [
+        {
+          product: {
+            id: product.id,
+            quantity: 1,
+            price: product.price as TProductPrice,
+          },
+        },
+      ],
+      paymentMethod: method,
+    };
+    switch (method) {
+      case PaymentMethod.CRYPTO:
+        console.log("payment with crypto", product.title);
+        createOrderMutation.mutate(payload, { onSuccess: () => closeModal() });
+        break;
+      case PaymentMethod.ON_DELIVERY:
+        createOrderMutation.mutate(payload, { onSuccess: () => closeModal() });
+        break;
+      default:
+        throw new Error(`Payment method not suported`);
+    }
+  };
+
   if (isLoading) return <h1>Is loading...</h1>;
   if (!data) return <h1>No data</h1>;
 
@@ -26,34 +64,51 @@ export default function Home() {
           className="flex min-h-screen flex-col  justify-center p-4 px-7 pt-24"
         >
           <Header />
-          <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 md:grid-cols-3">
-            {data.map((product) => (
-              <ProductCard
-                id={product.id}
-                key={product.id}
-                product={product}
-                image={
-                  <ProductCard.Image
-                    onClick={() => {
-                      void router.replace(`products/${product.id}`);
-                    }}
+          <BuyNowModal
+            onBuy={onBuyHandler}
+            renderLoading={() => {
+              if (createOrderMutation.isLoading)
+                return (
+                  createOrderMutation.isLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-primary-100">
+                      <h1>Loading...</h1>
+                    </div>
+                  )
+                );
+            }}
+            renderButton={({ buyNow }) => (
+              <div className="relative grid grid-cols-1 gap-7 overflow-hidden sm:grid-cols-2 md:grid-cols-3">
+                {data.map((product) => (
+                  <ProductCard
+                    id={product.id}
+                    key={product.id}
+                    product={product}
+                    image={
+                      <ProductCard.Image
+                        onClick={() => {
+                          void router.replace(`products/${product.id}`);
+                        }}
+                      />
+                    }
+                    body={
+                      <>
+                        <ProductCard.Title />
+                        <ProductCard.Description />
+                      </>
+                    }
+                    actions={
+                      <>
+                        <ProductCard.Price />
+                        <Button onClick={() => buyNow({ product })}>
+                          Buy now
+                        </Button>
+                      </>
+                    }
                   />
-                }
-                body={
-                  <>
-                    <ProductCard.Title />
-                    <ProductCard.Description />
-                  </>
-                }
-                actions={
-                  <>
-                    <ProductCard.Price />
-                    <Button>Buy now</Button>
-                  </>
-                }
-              />
-            ))}
-          </div>
+                ))}
+              </div>
+            )}
+          />
         </Container>
       </main>
     </>
