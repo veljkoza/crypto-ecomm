@@ -75,15 +75,23 @@ model OrderProduct {
     product   Product @relation(fields: [productId], references: [id])
     quantity  Int
     productId String
+    Order     Order?  @relation(fields: [orderId], references: [id])
+    orderId   String?
+}
+
+enum PaymentMethod {
+    ON_DELIVERY
+    CRYPTO
 }
 
 model Order {
-    id            String        @id @default(cuid())
+    id            String         @id @default(cuid())
     status        OrderStatus
-    products      Json //[{product: Product, quantity}]
+    products      OrderProduct[]
     total         Int
     fullName      String
     address       String
     phoneNumber   String
     paymentStatus PaymentStatus
+    paymentMethod PaymentMethod
 }

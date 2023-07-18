@@ -1,19 +1,52 @@
 import Head from "next/head";
-import Link from "next/link";
 import { ProductCard } from "~/_domain/products/components/product-card/product-card";
 import { Button } from "~/_shared/components/Button";
 import { Header } from "~/_shared/components/Header";
 import { api } from "~/utils/api";
 import { Container } from "~/_shared/components/Container";
 import { useRouter } from "next/router";
-import { Dialog, Transition } from "@headlessui/react";
-import { FC, Fragment, ReactNode, useState } from "react";
-import { ProductDTO } from "~/_domain/products/types";
-import { formatPrice } from "~/_shared/utils";
-import { TProductPrice } from "~/server/api/products/products.types";
+
+import { BuyNowModal } from "~/_domain/products/components/buy-now-modal/buy-now-modal";
+import { PaymentMethod } from "@prisma/client";
+import type { TProductPrice } from "~/server/api/products/products.types";
 export default function Home() {
   const { data, isLoading } = api.product.getAll.useQuery();
   const router = useRouter();
+
+  const createOrderMutation = api.order.create.useMutation();
+
+  const onBuyHandler: Parameters<typeof BuyNowModal>["0"]["onBuy"] = ({
+    method,
+    product,
+    closeModal,
+  }) => {
+    const payload = {
+      address: "Kralja Nikole 982",
+      fullName: "Veljkoza",
+      phoneNumber: "+392391",
+      products: [
+        {
+          product: {
+            id: product.id,
+            quantity: 1,
+            price: product.price as TProductPrice,
+          },
+        },
+      ],
+      paymentMethod: method,
+    };
+    switch (method) {
+      case PaymentMethod.CRYPTO:
+        console.log("payment with crypto", product.title);
+        createOrderMutation.mutate(payload, { onSuccess: () => closeModal() });
+        break;
+      case PaymentMethod.ON_DELIVERY:
+        createOrderMutation.mutate(payload, { onSuccess: () => closeModal() });
+        break;
+      default:
+        throw new Error(`Payment method not suported`);
+    }
+  };
 
   if (isLoading) return <h1>Is loading...</h1>;
   if (!data) return <h1>No data</h1>;
@@ -32,8 +65,19 @@ export default function Home() {
         >
           <Header />
           <BuyNowModal
+            onBuy={onBuyHandler}
+            renderLoading={() => {
+              if (createOrderMutation.isLoading)
+                return (
+                  createOrderMutation.isLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-primary-100">
+                      <h1>Loading...</h1>
+                    </div>
+                  )
+                );
+            }}
             renderButton={({ buyNow }) => (
-              <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 md:grid-cols-3">
+              <div className="relative grid grid-cols-1 gap-7 overflow-hidden sm:grid-cols-2 md:grid-cols-3">
                 {data.map((product) => (
                   <ProductCard
                     id={product.id}
@@ -70,80 +114,3 @@ export default function Home() {
     </>
   );
 }
-
-type TBuyNowFn = (params: { product: ProductDTO }) => void;
-
-interface IBuyNowModal {
-  renderButton: ({ buyNow }: { buyNow: TBuyNowFn }) => ReactNode;
-}
-
-const BuyNowModal: FC<IBuyNowModal> = ({ renderButton }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [product, setProduct] = useState<ProductDTO>();
-  const openModal = () => setIsOpen(true);
-  function closeModal() {
-    setIsOpen(false);
-  }
-
-  const buyNow: TBuyNowFn = ({ product }) => {
-    openModal();
-    setProduct(product);
-  };
-
-  const price = product?.price as TProductPrice;
-
-  return (
-    <>
-      <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10 " onClose={closeModal}>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black-rich bg-opacity-50" />
-          </Transition.Child>
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-lg bg-black-slate-300 p-6 text-left align-middle shadow-lg transition-all">
-                  <Dialog.Title
-                    as="h3"
-                    className="mb-5 text-center font-work text-2xl font-semibold  text-white"
-                  >
-                    You are about to buy{" "}
-                    <span className="capitalize text-primary-600">
-                      {product?.title}
-                    </span>{" "}
-                    for{" "}
-                    <span className="text-primary-600">
-                      {price && formatPrice(price.value, price.currency)}
-                    </span>
-                  </Dialog.Title>
-                  <Button className="w-full">Pay with Crypto</Button>
-                  <p className=" mb-2 mt-5 text-center text-white">or</p>
-                  <Button intent="secondary" className="w-full">
-                    Pay on delivery
-                  </Button>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
-      {renderButton({ buyNow })}
-    </>
-  );
-};
